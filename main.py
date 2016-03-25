@@ -172,10 +172,14 @@ curses.noecho()
 curses.curs_set(0)
 screen.keypad(1)
 
+# intro screen
+screen.addstr("Welcome to 2048! The objective of the game is to get a node to 2048. Use the arrow keys to move nodes and press 'q' to quit\n\nPress any key to continue...")
+screen.getch()
+
 # main game loop
 try:
     while(not gameOver(board)):
-        os.system('clear')
+        screen.clear()
         printBoard(board, screen)
         move = getUserInput(screen)
         updateBoard(board, move)
@@ -184,22 +188,3 @@ try:
     getUserInput(screen)
 finally:
     curses.endwin()
-
-# screen = curses.initscr()
-# try:
-#     curses.noecho()
-#     curses.curs_set(0)
-#     screen.keypad(1)
-#     screen.addstr("Press a key")
-#     event = screen.getch()
-# finally:
-#     curses.endwin()
-#
-# if event == curses.KEY_LEFT:
-#     print("Left Arrow Key pressed")
-# elif event == curses.KEY_RIGHT:
-#     print("Right Arrow Key pressed")
-# elif event == 113:
-#     print("Esc key pressed")
-# else:
-#     print(event)

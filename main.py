@@ -1,5 +1,4 @@
 import random
-import os
 import curses
 
 
@@ -10,14 +9,14 @@ def calculateBranch(score):
     return score
 
 
-def moveAllTiles(board, vector):
+def moveAllTiles(board, vector, score):
     somethingChanged = False
     currentTile = [0, 0]
     #screen.addstr(str(vector))
     #getUserInput(screen)
     while currentTile[1] < BOARD_SIZE:
         # if tile was moved, then start over again
-        moved = moveTile(board, currentTile, vector)
+        moved, score = moveTile(board, currentTile, vector, score)
         #screen.addstr(str(currentTile))
         #screen.addstr(str(moved))
         #getUserInput(screen)
@@ -31,35 +30,37 @@ def moveAllTiles(board, vector):
         else:
             currentTile[0] = 0
             currentTile[1] += 1
-    return somethingChanged
+    return somethingChanged, score
 
 
-def moveTile(board, currentTile, vector):
+def moveTile(board, currentTile, vector, score):
     # get the location we want to move to
     moveIntoTile = (currentTile[0] + vector[0], currentTile[1] + vector[1])
 
     # if currentTile is zero, don't worry moving it
     if board[currentTile[1]][currentTile[0]] == 0:
-        return False
+        return False, score
 
     # if attempted move is outside of board, can't move there
     if moveIntoTile[0] < 0 or moveIntoTile[0] >= BOARD_SIZE or moveIntoTile[1] < 0 or moveIntoTile[1] >= BOARD_SIZE:
-        return False
+        return False, score
 
     # if the move tile is empty, move there
     if board[moveIntoTile[1]][moveIntoTile[0]] == 0:
         board[moveIntoTile[1]][moveIntoTile[0]] = board[currentTile[1]][currentTile[0]]
         board[currentTile[1]][currentTile[0]] = 0
-        return True
+        return True, score
 
     # if the move tile has the same value as the current tile, combine them and move
+    # also update score
     if board[moveIntoTile[1]][moveIntoTile[0]] == board[currentTile[1]][currentTile[0]]:
+        score += board[moveIntoTile[1]][moveIntoTile[0]] * 2
         board[moveIntoTile[1]][moveIntoTile[0]] = board[moveIntoTile[1]][moveIntoTile[0]] * 2
         board[currentTile[1]][currentTile[0]] = 0
-        return True
+        return True, score
 
     # if we still haven't moved, then we can't move
-    return False
+    return False, score
 
 
 def addNewValue(board):
@@ -69,7 +70,7 @@ def addNewValue(board):
     board[location[1]][location[0]] = 2
 
 
-def updateBoard(board, move):
+def updateBoard(board, move, score):
     # get movement vector
     if move == "up":
         vector = (0, -1)
@@ -82,23 +83,25 @@ def updateBoard(board, move):
 
     # move all current pieces
     # make sure something has actually moved!
-    somethingChanged = moveAllTiles(board, vector)
+    somethingChanged, score = moveAllTiles(board, vector, score)
     if not somethingChanged:
         nextMove = getUserInput(screen)
-        updateBoard(board, nextMove)
+        updateBoard(board, nextMove, score)
     else:
         # add a new 2 value to board if something has changed
         addNewValue(board)
+    return score
 
 
-def printBoard(board, screen):
+def printBoard(board, screen, score):
     screen.clear()
 
     line = ""
     for y in range(BOARD_SIZE):
         for x in range(BOARD_SIZE):
             line += str(board[y][x]) + "\t"
-        line += "\n"
+        line += "\n\n"
+    line += "Score: " + str(score)
     screen.addstr(line)
 
 
@@ -164,6 +167,7 @@ def getUserInput(screen):
 # main function
 
 # set up
+score = 0
 screen = curses.initscr()
 random.seed()
 board = [[0 for x in range(BOARD_SIZE)] for x in range(BOARD_SIZE)]
@@ -180,11 +184,11 @@ screen.getch()
 try:
     while(not gameOver(board)):
         screen.clear()
-        printBoard(board, screen)
+        printBoard(board, screen, score)
         move = getUserInput(screen)
-        updateBoard(board, move)
+        score = updateBoard(board, move, score)
     screen.clear()
     screen.addstr("Game over!")
-    getUserInput(screen)
+    screen.getch()
 finally:
     curses.endwin()

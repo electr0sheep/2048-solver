@@ -126,6 +126,11 @@ def gameOver(board):
         for x in range(BOARD_SIZE):
             if board[y][x] == 2048:
                 return True
+    # check for any zeroes on the board, if there are zeroes, a move is available
+    for y in range(BOARD_SIZE):
+        for x in range(BOARD_SIZE):
+            if board[y][x] == 0:
+                return False
     # check for loss, if any two adjacent slots have the same number, not game over
     for y in range(BOARD_SIZE):
         for x in range(BOARD_SIZE):
@@ -187,8 +192,8 @@ try:
         printBoard(board, screen, score)
         move = getUserInput(screen)
         score = updateBoard(board, move, score)
-    screen.clear()
-    screen.addstr("Game over!")
+    printBoard(board, screen, score)
+    screen.addstr("\n\nGame over!")
     screen.getch()
 finally:
     curses.endwin()

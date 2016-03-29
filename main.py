@@ -12,14 +12,9 @@ def calculateBranch(score):
 def moveAllTiles(board, vector, score):
     somethingChanged = False
     currentTile = [0, 0]
-    #screen.addstr(str(vector))
-    #getUserInput(screen)
     while currentTile[1] < BOARD_SIZE:
         # if tile was moved, then start over again
         moved, score = moveTile(board, currentTile, vector, score)
-        #screen.addstr(str(currentTile))
-        #screen.addstr(str(moved))
-        #getUserInput(screen)
         if moved:
             somethingChanged = True
             currentTile = [-1, 0]
